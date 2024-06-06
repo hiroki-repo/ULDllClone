@@ -35,11 +35,12 @@ extern "C" {
         UINT64 textaddr = 0;
         UINT64 textaddrsize = 0;
         DWORD tmp;
-        memcpy(buff0,prm_0,4096);
+        memcpy(buff0,(void*)prm_0,4096);
         if ((buff0[0] != 'M' || buff0[1] != 'Z') && (buff0[0] != 'P' || buff0[1] != 'E')) { return 0; }
         if (buff0[0] != 'P' || buff0[1] != 'E') {
-            memcpy(buff0, prm_0 + (*(UINT32*)(&buff0[0x3c])), 4096);
+            memcpy(buff0, (void*)(prm_0 + ((*(UINT32*)(&buff0[0x3c])) / 4)), 4096 - (*(UINT32*)(&buff0[0x3c])));
         }
+        if (buff0[0] != 'P' || buff0[1] != 'E') { return 0; }
         baseaddr = (UINT64)prm_0;
         buff4pe = (char*)VirtualAlloc(0, (*(UINT32*)(&buff0[0x50])) + 4096, 0x3000, 0x40);
         if (buff4pe == 0) { return 0; }
@@ -84,7 +85,7 @@ extern "C" {
         UINT32 armlo_ = 0;
         UINT64 deltatmp;
         HMODULE HM = 0;
-        //if (reloc == 0) { CloseHandle(fh); free(buff4pe); return 0; }
+        if (reloc == 0) { VirtualFree(buff4pe,0,0x8000); return 0; }
 
     loop4relocate:
         cnt = 0;
